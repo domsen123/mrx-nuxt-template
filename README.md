@@ -140,6 +140,21 @@ This template uses **Nuxt UI Pro** for premium components. Key features:
 - Modal dialogs
 - And much more!
 
+## 🤖 Claude AI Agent Support
+
+This project is pre-configured for Claude AI agent development with the following features:
+
+- **`.claude` directory** - Contains Claude-specific configuration and memory files
+- **`.mcp.json`** - Model Context Protocol configuration for enhanced AI interactions
+- **`./agent/**`** - Dedicated directory for AI agent-related code and utilities
+
+Feel free to utilize these resources for building AI-powered features:
+- Claude memory management and context persistence
+- Custom agent workflows and integrations
+- MCP tool configurations for extended capabilities
+
+These files are optional and can be removed if you're not using Claude AI features.
+
 ## 🚀 Deployment
 
 ### Environment Variables
