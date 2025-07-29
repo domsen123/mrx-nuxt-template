@@ -1,9 +1,9 @@
-<script lang="ts" setup>
-
-</script>
-
 <template>
-  <div>/admin/index.vue</div>
+  <UContainer>
+    <div class="pt-10">
+      <ULink to="/">
+        Go to Home
+      </ULink>
+    </div>
+  </UContainer>
 </template>
-
-<style></style>
