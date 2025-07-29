@@ -1,9 +1,7 @@
-import type { Session, User } from 'better-auth'
-
 export const useAuthStore = defineStore('auth', () => {
   const authClient = useAuthClient()
 
-  const session = ref<{ session: Session, user: User } | null>(null)
+  const session = ref<typeof authClient.$Infer.Session | null>(null)
 
   const getSession = async () => {
     const response = await authClient.getSession()

@@ -10,4 +10,7 @@ export default defineNuxtConfig({
     '@nuxtjs/seo',
   ],
   css: ['~/assets/css/main.css'],
+  typescript: {
+    strict: true,
+  },
 })
