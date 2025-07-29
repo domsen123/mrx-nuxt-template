@@ -3,6 +3,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   const session = ref<typeof authClient.$Infer.Session | null>(null)
 
+  const getRoles = (roles: string) => {
+    return roles.split(',').map(role => role.trim())
+  }
+
   const getSession = async () => {
     const response = await authClient.getSession()
     if (response.error) {
@@ -43,10 +47,14 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const currentUser = computed(() => session.value?.user || null)
+  const isAuthenticated = computed(() => !!session.value)
+  const isAdmin = computed(() => session.value?.user?.role ? getRoles(session.value.user.role).includes('admin') : false)
 
   return {
     session,
     currentUser,
+    isAuthenticated,
+    isAdmin,
     getSession,
     signUpWithEmailAndPassword,
     loginWithEmailAndPassword,
