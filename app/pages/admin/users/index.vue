@@ -145,12 +145,36 @@ const columns = [
   },
   {
     accessorKey: 'emailVerified',
-    header: 'Status',
+    header: 'Email Status',
     cell: ({ row }) => {
       const verified = row.getValue('emailVerified') as boolean
       const status = verified ? 'Verified' : 'Unverified'
       const color = verified ? 'success' : 'neutral'
       return h(UBadge, { variant: 'subtle', color }, () => status)
+    },
+  },
+  {
+    accessorKey: 'banned',
+    header: 'Ban Status',
+    cell: ({ row }) => {
+      const user = row.original as UserWithRole
+      const isBanned = user.banned
+      
+      if (!isBanned) {
+        return h(UBadge, { variant: 'subtle', color: 'success' }, () => 'Active')
+      }
+
+      // Check if ban is expired
+      const isExpired = user.banExpires && new Date(user.banExpires) < new Date()
+      
+      if (isExpired) {
+        return h(UBadge, { variant: 'subtle', color: 'warning' }, () => 'Expired')
+      }
+
+      const isPermanent = !user.banExpires
+      const status = isPermanent ? 'Banned' : `Banned (${new Date(user.banExpires!).toLocaleDateString()})`
+      
+      return h(UBadge, { variant: 'subtle', color: 'error' }, () => status)
     },
   },
   {
@@ -264,6 +288,7 @@ const columns = [
           <component
             :is="getCurrentFormComponent()"
             v-if="currentAction"
+            :key="`${currentAction}-${selectedUser?.id || 'new'}`"
             :user="selectedUser"
             @success="handleFormSuccess"
             @cancel="closeModal"

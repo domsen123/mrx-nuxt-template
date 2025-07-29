@@ -16,12 +16,10 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const _authClient = useAuthClient()
-
 // Validation schema
 const schema = z.object({
   confirmEmail: z.string().email('Please enter a valid email'),
-}).refine(data => {
+}).refine((data) => {
   return props.user ? data.confirmEmail === props.user.email : false
 }, {
   message: 'Email does not match',
@@ -34,8 +32,6 @@ type Schema = z.output<typeof schema>
 const state = reactive({
   confirmEmail: '',
 })
-
-const isLoading = ref(false)
 
 // Format account age
 const accountAge = computed(() => {
@@ -58,51 +54,65 @@ const accountAge = computed(() => {
   return `${Math.floor(diffDays / 365)} years`
 })
 
-// Handle form submission
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (!props.user) return
+// Use mutation from store
+const { useDeleteUser } = useAdminStore()
+const { mutate: deleteUser, isLoading, error: mutationError, status } = useDeleteUser()
 
-  isLoading.value = true
+const error = ref<string | null>(null)
 
-  try {
-    await _authClient.admin.removeUser({
-      userId: props.user.id,
-    })
+// Watch for mutation errors
+watch(mutationError, (newError) => {
+  if (newError) {
+    error.value = newError.message || 'Failed to delete user'
+  }
+})
 
+// Watch for mutation success
+watch(status, (newStatus) => {
+  if (newStatus === 'success') {
     emit('success')
   }
-  catch (error) {
-    console.error('Failed to delete user:', error)
-  }
-  finally {
-    isLoading.value = false
-  }
+})
+
+// Reset error when component mounts
+onMounted(() => {
+  error.value = null
+})
+
+// Handle form submission
+function onSubmit(_event: FormSubmitEvent<Schema>) {
+  if (!props.user)
+    return
+
+  error.value = null
+
+  deleteUser({
+    userId: props.user.id,
+  })
 }
 </script>
 
 <template>
   <div v-if="user" class="space-y-4">
-    <!-- User Info -->
-    <div class="space-y-2">
-      <div>
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.email }}
-        </p>
-      </div>
-
-      <div v-if="user.name">
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.name }}
-        </p>
-      </div>
-
-      <div>
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Account Age</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ accountAge }}
-        </p>
+    <!-- User Info Card -->
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <div class="w-10 h-10 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center">
+            <UIcon name="i-lucide-trash-2" class="w-5 h-5 text-red-600 dark:text-red-400" />
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {{ user.name || 'Unnamed User' }}
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+            {{ user.email }}
+          </p>
+        </div>
+        <div class="flex-shrink-0">
+          <UBadge :label="accountAge" variant="subtle" color="neutral" />
+        </div>
       </div>
     </div>
 
@@ -124,6 +134,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         </div>
       </template>
     </UAlert>
+
+    <!-- Error Message -->
+    <UAlert v-if="error" color="error" icon="i-lucide-alert-circle" :title="error" />
 
     <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
       <UFormField

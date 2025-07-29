@@ -7,8 +7,6 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const _authClient = useAuthClient()
-
 // Validation schema
 const schema = z.object({
   email: z.email('Invalid email'),
@@ -32,20 +30,20 @@ const state = reactive({
   role: 'user' as 'user' | 'admin',
 })
 
-const isLoading = ref(false)
-
 // Available roles
 const roles = [
   { label: 'User', value: 'user' },
   { label: 'Admin', value: 'admin' },
 ]
 
+// Use mutation from store
+const { useCreateUser } = useAdminStore()
+const { mutate: createUser, isLoading, error: mutationError, status } = useCreateUser()
+
 // Handle form submission
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  isLoading.value = true
-
   try {
-    await _authClient.admin.createUser({
+    await createUser({
       email: event.data.email,
       password: event.data.password,
       name: event.data.name,
@@ -56,9 +54,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
   catch (error) {
     console.error('Failed to create user:', error)
-  }
-  finally {
-    isLoading.value = false
   }
 }
 </script>

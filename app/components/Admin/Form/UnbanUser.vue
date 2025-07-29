@@ -15,11 +15,30 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const _authClient = useAuthClient()
+// Use mutation from store
+const { useUnbanUser } = useAdminStore()
+const { mutate: unbanUser, isLoading, error: mutationError, status } = useUnbanUser()
 
-// Form state
-const isLoading = ref(false)
 const error = ref<string | null>(null)
+
+// Watch for mutation errors
+watch(mutationError, (newError) => {
+  if (newError) {
+    error.value = newError.message || 'Failed to unban user'
+  }
+})
+
+// // Watch for mutation success
+watch(status, (newStatus) => {
+  if (newStatus === 'success') {
+    emit('success')
+  }
+})
+
+// Reset error when component mounts
+onMounted(() => {
+  error.value = null
+})
 
 // Format ban expiration date
 const formattedBanExpires = computed(() => {
@@ -41,46 +60,36 @@ const isBanExpired = computed(() => {
 })
 
 // Handle form submission
-const handleSubmit = async () => {
+const handleSubmit = () => {
   if (!props.user)
     return
 
-  isLoading.value = true
   error.value = null
 
-  try {
-    await _authClient.admin.unbanUser({
-      userId: props.user.id,
-    })
-
-    emit('success')
-  }
-  catch (err) {
-    console.error('Failed to unban user:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to unban user'
-  }
-  finally {
-    isLoading.value = false
-  }
+  unbanUser({
+    userId: props.user.id,
+  })
 }
 </script>
 
 <template>
   <div v-if="user" class="space-y-4">
-    <!-- User Info -->
-    <div class="space-y-2">
-      <div>
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.email }}
-        </p>
-      </div>
-
-      <div v-if="user.name">
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.name }}
-        </p>
+    <!-- User Info Card -->
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <div class="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+            <UIcon name="i-lucide-shield-check" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {{ user.name || 'Unnamed User' }}
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+            {{ user.email }}
+          </p>
+        </div>
       </div>
     </div>
 
@@ -112,19 +121,19 @@ const handleSubmit = async () => {
 
     <!-- Confirmation Message -->
     <UAlert
-      color="blue"
+      color="info"
       icon="i-lucide-info"
       title="Confirmation"
       description="Are you sure you want to unban this user? They will immediately regain access to their account."
     />
 
     <!-- Error Message -->
-    <UAlert v-if="error" color="red" icon="i-lucide-alert-circle" :title="error" />
+    <UAlert v-if="error" color="error" icon="i-lucide-alert-circle" :title="error" />
 
     <!-- Actions -->
     <div class="flex justify-end gap-3">
       <UButton
-        color="gray"
+        color="neutral"
         variant="ghost"
         :disabled="isLoading"
         @click="emit('cancel')"
@@ -135,7 +144,6 @@ const handleSubmit = async () => {
       <UButton
         color="primary"
         :loading="isLoading"
-        :disabled="isLoading"
         @click="handleSubmit"
       >
         Unban User

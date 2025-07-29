@@ -15,14 +15,12 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const _authClient = useAuthClient()
-
 // Validation schema
 const schema = z.object({
   reason: z.string().min(10, 'Please provide a more detailed reason (at least 10 characters)'),
   duration: z.enum(['permanent', 'custom']),
   customDate: z.string().optional(),
-}).refine(data => {
+}).refine((data) => {
   if (data.duration === 'custom') {
     return data.customDate && data.customDate.length > 0
   }
@@ -41,8 +39,6 @@ const state = reactive({
   customDate: '',
 })
 
-const isLoading = ref(false)
-
 // Get minimum date (tomorrow)
 const minDate = computed(() => {
   const tomorrow = new Date()
@@ -52,58 +48,84 @@ const minDate = computed(() => {
 
 // Duration options
 const durationOptions = [
-  { value: 'permanent', label: 'Permanent Ban' },
-  { value: 'custom', label: 'Temporary Ban (select date)' },
+  {
+    label: 'Permanent Ban',
+    value: 'permanent',
+    description: 'User will be permanently banned',
+  },
+  {
+    label: 'Temporary Ban (select date)',
+    value: 'custom',
+    description: 'Ban expires on a specific date',
+  },
 ]
 
-// Handle form submission
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (!props.user) return
+// Use mutation from store
+const { useBanUser } = useAdminStore()
+const { mutate: banUser, isLoading, error: mutationError, status } = useBanUser()
 
-  isLoading.value = true
+const error = ref<string | null>(null)
 
-  try {
-    const banData: any = {
-      userId: props.user.id,
-      reason: event.data.reason.trim(),
-    }
+// Watch for mutation errors
+watch(mutationError, (newError) => {
+  if (newError) {
+    error.value = newError.message || 'Failed to ban user'
+  }
+})
 
-    // Add expiration date for temporary bans
-    if (event.data.duration === 'custom' && event.data.customDate) {
-      const expiresAt = new Date(event.data.customDate)
-      expiresAt.setHours(23, 59, 59, 999)
-      banData.expiresAt = expiresAt.toISOString()
-    }
-
-    await _authClient.admin.banUser(banData)
-
+// Watch for mutation success
+watch(status, (newStatus) => {
+  if (newStatus === 'success') {
     emit('success')
   }
-  catch (error) {
-    console.error('Failed to ban user:', error)
+})
+
+// Reset error when component mounts
+onMounted(() => {
+  error.value = null
+})
+
+// Handle form submission
+function onSubmit(event: FormSubmitEvent<Schema>) {
+  if (!props.user)
+    return
+
+  error.value = null
+
+  const banData: any = {
+    userId: props.user.id,
+    reason: event.data.reason.trim(),
   }
-  finally {
-    isLoading.value = false
+
+  // Add expiration date for temporary bans
+  if (event.data.duration === 'custom' && event.data.customDate) {
+    const expiresAt = new Date(event.data.customDate)
+    expiresAt.setHours(23, 59, 59, 999)
+    banData.expiresAt = expiresAt.toISOString()
   }
+
+  banUser(banData)
 }
 </script>
 
 <template>
   <div v-if="user" class="space-y-4">
-    <!-- User Info -->
-    <div class="space-y-2">
-      <div>
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.email }}
-        </p>
-      </div>
-
-      <div v-if="user.name">
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.name }}
-        </p>
+    <!-- User Info Card -->
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <div class="w-10 h-10 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center">
+            <UIcon name="i-lucide-ban" class="w-5 h-5 text-red-600 dark:text-red-400" />
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {{ user.name || 'Unnamed User' }}
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+            {{ user.email }}
+          </p>
+        </div>
       </div>
     </div>
 
@@ -114,6 +136,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       title="Warning"
       description="Banning this user will prevent them from accessing their account."
     />
+
+    <!-- Error Message -->
+    <UAlert v-if="error" color="error" icon="i-lucide-alert-circle" :title="error" />
 
     <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
       <UFormField label="Ban Reason" name="reason" required>
@@ -128,8 +153,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       <UFormField label="Ban Duration" name="duration" required>
         <URadioGroup
           v-model="state.duration"
-          :options="durationOptions"
-          class="w-full"
+          :items="durationOptions"
+          value-key="value"
+          class="space-y-3"
         />
       </UFormField>
 

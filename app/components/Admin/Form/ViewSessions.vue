@@ -170,20 +170,22 @@ onMounted(() => {
 
 <template>
   <div v-if="user" class="space-y-4">
-    <!-- User Info -->
-    <div class="space-y-2">
-      <div>
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.email }}
-        </p>
-      </div>
-
-      <div v-if="user.name">
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-        <p class="text-sm text-gray-900 dark:text-gray-100">
-          {{ user.name }}
-        </p>
+    <!-- User Info Card -->
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <div class="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+            <UIcon name="i-lucide-activity" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {{ user.name || 'Unnamed User' }}
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+            {{ user.email }}
+          </p>
+        </div>
       </div>
     </div>
 

@@ -23,4 +23,8 @@ logs
 .env.*
 !.env.example
 
+# AI Stuff
 tasks
+agent/history
+agent/issues
+agent/research
