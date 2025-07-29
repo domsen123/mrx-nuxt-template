@@ -8,12 +8,12 @@ const open = ref(false)
 
 const links = computed<NavigationMenuItem[][]>(() => [
   [
-    {
-      label: 'Dashboard',
-      to: '/admin',
-      icon: 'i-lucide-bar-chart-3',
-      active: route.path === '/admin',
-    },
+    // {
+    //   label: 'Dashboard',
+    //   to: '/admin',
+    //   icon: 'i-lucide-bar-chart-3',
+    //   active: route.path === '/admin',
+    // },
     {
       label: 'Users',
       to: '/admin/users',
@@ -41,7 +41,7 @@ const groups = computed(() => [{
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <NuxtLink to="/">
+        <NuxtLink to="/" class="font-semibold">
           <span v-if="collapsed">ADM</span>
           <span v-else>Nuxt UI Admin</span>
         </NuxtLink>

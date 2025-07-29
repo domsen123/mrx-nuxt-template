@@ -1,11 +1,9 @@
+import { getRoles } from '~/utils/roles'
+
 export const useAuthStore = defineStore('auth', () => {
   const authClient = useAuthClient()
 
   const session = ref<typeof authClient.$Infer.Session | null>(null)
-
-  const getRoles = (roles: string) => {
-    return roles.split(',').map(role => role.trim())
-  }
 
   const getSession = async () => {
     const response = await authClient.getSession()
