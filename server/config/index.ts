@@ -44,9 +44,6 @@ const config = {
     auth_secret: process.env.NUXT_AUTH_SECRET || '',
     session_secret: process.env.NUXT_SESSION_SECRET || '',
   },
-  wordpress: {
-    url: process.env.NUXT_PUBLIC_WORDPRESS_URL || 'https://wp-example.com',
-  },
 }
 
 export default config

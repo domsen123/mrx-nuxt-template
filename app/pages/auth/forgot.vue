@@ -7,11 +7,13 @@ definePageMeta({
 })
 
 useSeoMeta({
-  title: 'Login',
-  description: 'Sign in to your account',
+  title: 'Forgot Password',
+  description: 'Reset your password',
 })
 
+const { url } = useSiteConfig()
 const toast = useToast()
+const authClient = useAuthClient()
 
 const fields = [{
   name: 'email',
@@ -19,17 +21,10 @@ const fields = [{
   label: 'Email',
   placeholder: 'Enter your email address',
   required: true,
-}, {
-  name: 'password',
-  label: 'Password',
-  type: 'password' as const,
-  placeholder: 'Enter your password',
-  required: true,
 }]
 
 const schema = z.object({
   email: z.email('Please enter a valid email address'),
-  password: z.string(),
 })
 
 type Schema = z.output<typeof schema>
@@ -37,18 +32,24 @@ type Schema = z.output<typeof schema>
 const loading = ref(false)
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
-  const { email, password } = payload.data
-  const authStore = useAuthStore()
+  const { email } = payload.data
   loading.value = true
   try {
-    await authStore.loginWithEmailAndPassword(email, password)
-    await navigateTo('/')
+    await authClient.forgetPassword({
+      email,
+      redirectTo: `${url}/auth/reset`,
+    })
+    toast.add({
+      title: 'Password reset email sent',
+      description: 'Please check your email for the password reset link.',
+      color: 'success',
+    })
   }
   catch (error: any) {
-    console.error('Login error:', error)
+    console.error('Password reset error:', error)
     toast.add({
-      title: 'Login failed',
-      description: 'An unknown error occurred. Please try again later.',
+      title: 'Password reset failed',
+      description: error.message || 'An unknown error occurred. Please try again later.',
       color: 'error',
     })
   }
@@ -62,29 +63,20 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   <UAuthForm
     :fields="fields"
     :schema="schema"
-    title="Welcome back"
-    icon="i-lucide-lock"
-    :submit="{ label: 'Sign in' }"
+    title="Forgot your password?"
+    icon="i-lucide-key"
+    :submit="{ label: 'Send reset email' }"
     :validate-on="['change']"
     :loading="loading"
     @submit="onSubmit"
   >
     <template #description>
-      Don't have an account? <ULink
-        to="/auth/register"
+      Remember your password? <ULink
+        to="/auth/login"
         class="text-primary font-medium"
       >
-        Sign up
+        Sign in
       </ULink>.
-    </template>
-    <template #password-hint>
-      <ULink
-        to="/auth/forgot"
-        class="text-primary font-medium"
-        tabindex="-1"
-      >
-        Forgot password?
-      </ULink>
     </template>
   </UAuthForm>
 </template>

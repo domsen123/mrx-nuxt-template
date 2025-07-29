@@ -13,6 +13,13 @@ export const auth = betterAuth({
   secret: config.security.auth_secret,
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ url }) => {
+      console.info(`Click the link to reset your password: ${url}`)
+    },
+    onPasswordReset: async ({ user }) => {
+      // your logic here
+      console.log(`Password for user ${user.email} has been reset.`)
+    },
   },
   plugins: [
     admin(),

@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "postgres": {
+      "command": "uvx",
+      "args": [
+        "postgres-mcp",
+        "--access-mode=unrestricted"
+      ],
+      "env": {
+        "DATABASE_URI": "postgres://[user]:[password]@localhost:5432/[database]"
+      }
+    },
+    "nuxt": {
+      "type": "sse",
+      "url": "https://mcp.nuxt.com/sse"
+    }
+  }
+}

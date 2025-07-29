@@ -7,7 +7,6 @@
     <UMain>
       <slot />
     </UMain>
-    <BottomBar />
   </div>
 </template>
 

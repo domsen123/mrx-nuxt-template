@@ -1,18 +1,16 @@
 <template>
   <div class="h-screen flex items-center justify-center px-4 relative overflow-hidden">
-    <!-- Animated gradient blobs -->
     <div class="absolute inset-0 z-0">
       <div class="gradient-blob blob1"></div>
       <div class="gradient-blob blob2"></div>
     </div>
-    <div class="relative z-20 w-full max-w-md shadow-2xl">
-      <UPageCard
-        variant="subtle"
-        class="max-w-sm w-full relative z-10"
-      >
-        <slot />
-      </UPageCard>
-    </div>
+
+    <UPageCard
+      variant="subtle"
+      class="max-w-sm w-full"
+    >
+      <slot />
+    </UPageCard>
   </div>
 </template>
 
