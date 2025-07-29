@@ -32,8 +32,8 @@ const fields = [{
 const schema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Passwords don\'t match',
   path: ['confirmPassword'],
 })
 
@@ -44,7 +44,7 @@ const loading = ref(false)
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
   const { password } = payload.data
   const token = route.query.token as string
-  
+
   if (!token) {
     toast.add({
       title: 'Invalid reset link',
@@ -53,7 +53,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     })
     return
   }
-  
+
   loading.value = true
   try {
     await authClient.resetPassword({
