@@ -59,6 +59,8 @@ A modern, production-ready starter template for building authenticated web appli
    NUXT_DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
    NUXT_AUTH_SECRET="your-secret-key"
    NUXT_SESSION_SECRET="your-session-secret"
+   NUXT_ADMIN_EMAIL="admin@example.com"
+   NUXT_ADMIN_PASSWORD="optional-secure-password"  # Optional - random password generated if not set
    ```
 
 4. **Start the database**
@@ -229,6 +231,8 @@ NUXT_SITE_URL="https://yourdomain.com"
 NUXT_DATABASE_URL="your-production-db-url"
 NUXT_AUTH_SECRET="strong-random-secret"
 NUXT_SESSION_SECRET="another-strong-secret"
+NUXT_ADMIN_EMAIL="admin@yourdomain.com"
+NUXT_ADMIN_PASSWORD="secure-admin-password"  # Optional - random password generated if not set
 ```
 
 ### Build for Production
@@ -290,6 +294,21 @@ The password reset functionality in `/server/utils/auth.ts` currently logs reset
 
 2. Configure an email service (SendGrid, Postmark, AWS SES, etc.)
 3. Remove the console.log statements to prevent security risks
+
+### Admin User Creation
+
+On first startup, the application automatically creates an admin user using the `/server/plugins/01.create-admin-user.ts` plugin:
+
+- **Email**: Set via `NUXT_ADMIN_EMAIL` environment variable (required)
+- **Password**: Set via `NUXT_ADMIN_PASSWORD` environment variable (optional)
+  - If not provided, a random password is generated and logged to the console
+  - The random password will only be shown once on first startup
+  - For production, it's recommended to set a secure password in the environment variables
+
+⚠️ **Security Note**: The generated password is logged to console only for initial setup. Make sure to:
+1. Save the password immediately
+2. Change it after first login
+3. Never commit credentials to version control
 
 ## 🤝 Contributing
 

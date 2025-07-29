@@ -16,8 +16,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     admin: {
-      email: process.env.NUXT_ADMIN_EMAIL || '',
-      password: process.env.NUXT_ADMIN_PASSWORD || '',
+      email: process.env.NUXT_ADMIN_EMAIL || 'admin@example.com',
+      password: process.env.NUXT_ADMIN_PASSWORD || undefined,
     },
   },
 })
