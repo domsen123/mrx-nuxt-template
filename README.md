@@ -7,6 +7,7 @@ A modern, production-ready starter template for building authenticated web appli
 ### Authentication & Security
 - 🔐 **Better-Auth Integration** - Modern authentication library with session management
 - 👤 **Complete Auth Flow** - Registration, login, logout, and session persistence
+- 🔑 **Password Reset** - Built-in password reset functionality (⚠️ currently logs to console - see configuration)
 - 🛡️ **Role-Based Access Control** - Admin roles and permissions
 - 🔒 **Secure Sessions** - HTTP-only cookies with 7-day persistence
 - 🚫 **User Management** - Ban/suspension system built-in
@@ -136,6 +137,12 @@ await authClient.signOut()
 
 // Get current session
 const session = await authClient.getSession()
+
+// Request password reset
+await authClient.forgetPassword({
+  email: 'user@example.com',
+  redirectTo: '/auth/reset-password'
+})
 ```
 
 ### Protecting Routes
@@ -268,6 +275,21 @@ Authentication is configured in `/server/utils/auth.ts` with:
 - Drizzle adapter
 - Session management
 - ULID for unique IDs
+- Password reset functionality
+
+⚠️ **Important Note on Password Reset**:
+The password reset functionality in `/server/utils/auth.ts` currently logs reset links to the console (lines 16-17). This is intended for development only. For production, you must:
+
+1. Replace the `sendResetPassword` function to send actual emails:
+   ```typescript
+   sendResetPassword: async ({ url, user }) => {
+     // TODO: Implement email sending
+     // Example: await sendEmail(user.email, 'Password Reset', url)
+   }
+   ```
+
+2. Configure an email service (SendGrid, Postmark, AWS SES, etc.)
+3. Remove the console.log statements to prevent security risks
 
 ## 🤝 Contributing
 

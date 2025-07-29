@@ -1,4 +1,5 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import process from 'node:process'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
@@ -12,5 +13,11 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   typescript: {
     strict: true,
+  },
+  runtimeConfig: {
+    admin: {
+      email: process.env.NUXT_ADMIN_EMAIL || '',
+      password: process.env.NUXT_ADMIN_PASSWORD || '',
+    },
   },
 })
