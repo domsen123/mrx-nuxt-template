@@ -1,12 +1,12 @@
 services:
   postgres:
     image: postgres:15
-    container_name: flow-pg
+    container_name: mrx-nuxt-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: flow
+      POSTGRES_DB: mrx-nuxt
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
+      POSTGRES_PASSWORD: postgres
     ports:
       - '5432:5432'
     volumes:
