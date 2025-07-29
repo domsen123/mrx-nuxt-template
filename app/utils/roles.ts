@@ -4,7 +4,8 @@
  * @returns Array of individual role strings
  */
 export function getRoles(roles: string | null | undefined): string[] {
-  if (!roles) return []
+  if (!roles)
+    return []
   return roles.split(',').map(role => role.trim()).filter(Boolean)
 }
 

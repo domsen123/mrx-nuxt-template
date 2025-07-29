@@ -10,6 +10,8 @@ const _authClient = useAuthClient()
 
 type UserWithRole = typeof _authClient.$Infer.Session['user']
 
+type ActionType = 'setRole' | 'setPassword' | 'ban' | 'unban' | 'delete' | 'viewSessions' | 'create'
+
 const UCheckbox = resolveComponent('UCheckbox')
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
@@ -18,6 +20,82 @@ const UDropdownMenu = resolveComponent('UDropdownMenu')
 const users = computed<UserWithRole[]>(() => {
   return data.value && data.value.users ? data.value.users as UserWithRole[] : []
 })
+
+// Modal state management
+const isModalOpen = ref(false)
+const currentAction = ref<ActionType | null>(null)
+const selectedUser = ref<UserWithRole | null>(null)
+
+// Open modal with specific action and user
+const openModal = (action: ActionType, user: UserWithRole | null = null) => {
+  console.log('Opening modal for action:', action, 'on user:', user)
+  currentAction.value = action
+  selectedUser.value = user
+  isModalOpen.value = true
+}
+
+// Close modal and reset state
+const closeModal = () => {
+  isModalOpen.value = false
+  currentAction.value = null
+  selectedUser.value = null
+}
+
+// Component mapping with direct resolution
+const formComponents: Record<ActionType, any> = {
+  setRole: resolveComponent('AdminFormSetUserRole'),
+  setPassword: resolveComponent('AdminFormSetUserPassword'),
+  ban: resolveComponent('AdminFormBanUser'),
+  unban: resolveComponent('AdminFormUnbanUser'),
+  delete: resolveComponent('AdminFormDeleteUser'),
+  viewSessions: resolveComponent('AdminFormViewSessions'),
+  create: resolveComponent('AdminFormCreateUser'),
+}
+
+// Get current form component
+const getCurrentFormComponent = () => {
+  if (!currentAction.value) {
+    return null
+  }
+  return formComponents[currentAction.value]
+}
+
+// Get modal title based on action
+const getModalTitle = () => {
+  const titles: Record<ActionType, string> = {
+    setRole: 'Set User Role',
+    setPassword: 'Set User Password',
+    ban: 'Ban User',
+    unban: 'Unban User',
+    delete: 'Delete User',
+    viewSessions: 'View User Sessions',
+    create: 'Create New User',
+  }
+  return currentAction.value ? titles[currentAction.value] : ''
+}
+
+// Handle form success (refresh user list and close modal)
+const handleFormSuccess = () => {
+  closeModal()
+  // Refresh user list
+  // This will depend on how useListUsers is implemented
+  // For now, we'll assume it has a refresh method or we can re-fetch
+}
+
+// Handle impersonate user action
+const handleImpersonate = async (user: UserWithRole) => {
+  try {
+    await _authClient.admin.impersonateUser({
+      userId: user.id,
+    })
+    // Redirect to user dashboard after successful impersonation
+    await navigateTo('/')
+  }
+  catch (error) {
+    console.error('Failed to impersonate user:', error)
+    // TODO: Show error toast
+  }
+}
 
 const columns = [
   {
@@ -94,25 +172,52 @@ const columns = [
         {
           label: 'View Details',
           icon: 'i-lucide-eye',
-          click: () => console.log('View user:', row.original.id),
+          onClick: () => console.log('View user:', row.original.id),
         },
         {
-          label: 'Edit',
-          icon: 'i-lucide-pencil',
-          click: () => console.log('Edit user:', row.original.id),
+          label: 'View Sessions',
+          icon: 'i-lucide-activity',
+          onClick: () => openModal('viewSessions', row.original),
+        },
+        {
+          label: 'Impersonate User',
+          icon: 'i-lucide-user-check',
+          onClick: () => handleImpersonate(row.original),
         },
       ], [
         {
-          label: 'Delete',
+          label: 'Set Role',
+          icon: 'i-lucide-shield',
+          onClick: () => openModal('setRole', row.original),
+        },
+        {
+          label: 'Set Password',
+          icon: 'i-lucide-key',
+          onClick: () => openModal('setPassword', row.original),
+        },
+      ], [
+        ...(row.original.banned
+          ? [{
+              label: 'Unban User',
+              icon: 'i-lucide-shield-check',
+              onClick: () => openModal('unban', row.original),
+            }]
+          : [{
+              label: 'Ban User',
+              icon: 'i-lucide-ban',
+              onClick: () => openModal('ban', row.original),
+            }]),
+        {
+          label: 'Delete User',
           icon: 'i-lucide-trash-2',
           color: 'error' as const,
-          click: () => console.log('Delete user:', row.original.id),
+          onClick: () => openModal('delete', row.original),
         },
       ]],
     }, {
       default: () => h(UButton, {
         variant: 'ghost',
-        color: 'gray',
+        color: 'neutral',
         icon: 'i-lucide-ellipsis',
       }),
     }),
@@ -123,6 +228,15 @@ const columns = [
 <template>
   <AdminPageWrapper title="Users">
     <div class="space-y-4">
+      <!-- Page Actions -->
+      <div class="flex justify-end">
+        <UButton
+          icon="i-lucide-user-plus"
+          label="Create New User"
+          @click="openModal('create')"
+        />
+      </div>
+
       <UTable
         :columns="columns"
         :data="users"
@@ -139,5 +253,23 @@ const columns = [
         </template>
       </UTable>
     </div>
+
+    <!-- Dynamic Modal for User Actions -->
+    <UModal v-model:open="isModalOpen">
+      <template #content>
+        <div class="p-6">
+          <h2 class="text-lg font-semibold mb-4">
+            {{ getModalTitle() }}
+          </h2>
+          <component
+            :is="getCurrentFormComponent()"
+            v-if="currentAction"
+            :user="selectedUser"
+            @success="handleFormSuccess"
+            @cancel="closeModal"
+          />
+        </div>
+      </template>
+    </UModal>
   </AdminPageWrapper>
 </template>
