@@ -1,0 +1,157 @@
+# Rule: Generating Project Knowledgebase
+
+## Goal
+
+To guide an AI assistant in creating a comprehensive knowledgebase for a project based on an initial user idea. The knowledgebase should capture all relevant information needed for later PRD creation and implementation by a coding agent, reducing hallucinations and ensuring consistent project understanding.
+
+## Process
+
+1. **Receive Initial Idea:** The user provides a brief project idea or concept.
+2. **Systematic Discovery:** The AI must ask systematic clarifying questions across all relevant domains to fully understand the project scope, technical requirements, and business context.
+3. **Generate Knowledgebase:** Create structured markdown files covering all aspects of the project.
+4. **Save Files:** Save all generated documents in the `/agent/knowledge/` directory.
+
+## Discovery Phase - Clarifying Questions
+
+The AI should systematically explore these areas through targeted questions. Provide options in letter/number lists for easy user responses:
+
+### 1. Project Vision & Scope
+- "What is the core problem this project solves?"
+- "Who is the primary target audience?"
+- "What is the main value proposition?"
+- "What are the key success metrics?"
+- "Are there any existing solutions you want to improve upon?"
+
+### 2. Technical Architecture
+- "What type of application is this? (a) Web App (b) Mobile App (c) Desktop App (d) API/Backend (e) Other"
+- "Tech stack confirmation? (Default: Nuxt 4 + TypeScript + Nuxt UI Pro + Better-Auth + Drizzle ORM + PostgreSQL)"
+- "Any deviations from default stack needed?"
+- "Authentication requirements? (a) Simple email/password (b) OAuth providers (Google, GitHub, etc.) (c) Role-based access (d) Enterprise features"
+- "Deployment target? (a) Vercel (b) Netlify (c) Self-hosted (d) Cloud provider (e) Other"
+
+### 3. Business Logic & Data Models (Made Simple)
+- "What are the main 'things' users work with in your app? (e.g., Users, Posts, Products, Orders, Projects)"
+- "For each main 'thing', what information do you need to store? (e.g., User: name, email, role)"
+- "What can users DO with these things? (a) Create/Add (b) View/Read (c) Edit/Update (d) Delete (e) Search/Filter"
+- "Are there any special rules? (e.g., 'Only admins can delete posts' or 'Orders can't be changed after payment')"
+- "Do any of these things connect to each other? (e.g., 'Users create Posts', 'Orders contain Products')"
+- "Any automatic actions needed? (e.g., 'Send email when order is placed', 'Generate reports monthly')"
+
+### 4. UI/UX & Design
+- "Describe the desired look and feel"
+- "Design system confirmation? (Default: Nuxt UI Pro with custom theming)"
+- "Target devices? (a) Desktop-first (b) Mobile-first (c) Responsive (d) Mobile-only"
+- "Accessibility requirements?"
+- "Any reference websites or apps for inspiration?"
+
+### 5. Features & Functionality
+- "List the must-have features for MVP"
+- "What features are nice-to-have for future versions?"
+- "Admin interface requirements: (a) Basic CRUD for all data (b) User management (c) Analytics/Reports (d) System settings (e) All of the above"
+- "Real-time features required? (notifications, live updates, etc.)"
+- "Offline functionality needed?"
+
+### 6. Quality & Standards
+- "Testing requirements? (a) Unit tests (b) Integration tests (c) E2E tests (d) All (e) Minimal"
+- "Performance requirements or constraints?"
+- "Security considerations or compliance needs?"
+- "Internationalization/localization needed?"
+
+### 7. Project Context
+- "Timeline expectations?"
+- "Team size and skill level?"
+- "Budget constraints affecting technical choices?"
+- "Maintenance and long-term evolution plans?"
+
+## Knowledgebase Structure
+
+Generate the following files in `/agent/knowledge/`:
+
+### 1. `project-overview.md`
+- Project vision and goals
+- Target audience and use cases
+- Key success metrics
+- Scope and boundaries (what's included/excluded)
+
+### 2. `technical-architecture.md`
+- Tech stack: Nuxt 4, TypeScript, Nuxt UI Pro, Better-Auth, Drizzle ORM, PostgreSQL
+- Database schema and table relationships
+- API structure and endpoints
+- Authentication and authorization setup
+- Deployment and infrastructure
+- Performance and scalability considerations
+
+### 3. `business-logic.md`
+- Core entities and relationships
+- Business rules and validations
+- User workflows and journeys
+- Integration requirements
+- Algorithms and calculations
+
+### 4. `ui-ux-design.md`
+- Design system and component library
+- User interface guidelines
+- Responsive design requirements
+- Accessibility standards
+- User experience flows
+
+### 5. `features-requirements.md`
+- MVP feature list with priorities
+- Future feature roadmap
+- Admin and management features
+- Real-time and offline capabilities
+
+### 6. `coding-standards.md`
+- TypeScript conventions
+- Nuxt 4 best practices  
+- Nuxt UI Pro component usage guidelines
+- Better-Auth integration patterns
+- Drizzle ORM query conventions
+- Component structure guidelines
+- Testing strategies
+- Code organization patterns
+
+### 7. `decisions-log.md`
+- Key technical decisions and rationale
+- Trade-offs and alternatives considered
+- Constraints that influenced choices
+- Future decision points to revisit
+
+## File Format Guidelines
+
+Each file should include:
+- Clear section headers
+- Bullet points for easy scanning
+- Code examples where relevant
+- References to external resources
+- Last updated timestamp
+
+## Target Audience
+
+The knowledgebase is written for:
+- **Primary:** Claude coding agent for implementation
+- **Secondary:** Junior developers joining the project
+- **Tertiary:** Project stakeholders for reference
+
+## Interaction Protocol
+
+1. **Phase 1:** Ask discovery questions section by section
+2. **Phase 2:** Confirm understanding with summary
+3. **Phase 3:** Generate knowledgebase files
+4. **Phase 4:** Offer to refine based on user feedback
+
+## Success Criteria
+
+A successful knowledgebase should:
+- Enable a coding agent to understand the project without additional context
+- Provide sufficient detail for PRD creation
+- Minimize implementation assumptions and hallucinations
+- Serve as single source of truth for project decisions
+
+## Final Instructions
+
+1. Do NOT start implementing anything
+2. Ask discovery questions systematically, one section at a time
+3. Confirm understanding before generating files
+4. Save all files to `/agent/knowledge/` directory
+5. Offer to update/refine based on user feedback
