@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { Session } from 'better-auth'
+
 const props = defineProps<{
   user: {
     id: string
@@ -12,10 +14,10 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const _authClient = useAuthClient()
+const authClient = useAuthClient()
 
 // State
-const sessions = ref<any[]>([])
+const sessions = ref<Session[]>([])
 const isLoading = ref(false)
 const isRevoking = ref(false)
 const error = ref<string | null>(null)
@@ -28,23 +30,23 @@ const fetchSessions = async () => {
   isLoading.value = true
   error.value = null
 
-  try {
-    const response = await _authClient.admin.listUserSessions({
-      userId: props.user.id,
-    })
-    sessions.value = response.sessions || []
+  const { data, error: fetchError } = await authClient.admin.listUserSessions({
+    userId: props.user.id,
+  })
+  if (fetchError) {
+    console.error('Failed to fetch sessions:', fetchError)
+    error.value = fetchError instanceof Error ? fetchError.message : 'Failed to fetch sessions'
+    isLoading.value = false
+    return
   }
-  catch (err) {
-    console.error('Failed to fetch user sessions:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to fetch sessions'
-  }
-  finally {
+  if (data && data.sessions) {
+    sessions.value = data.sessions || []
     isLoading.value = false
   }
 }
 
 // Revoke individual session
-const revokeSession = async (sessionId: string) => {
+const revokeSession = async (sessionToken: string) => {
   if (!props.user)
     return
 
@@ -52,13 +54,12 @@ const revokeSession = async (sessionId: string) => {
   error.value = null
 
   try {
-    await _authClient.admin.revokeUserSession({
-      userId: props.user.id,
-      sessionId,
+    await authClient.admin.revokeUserSession({
+      sessionToken,
     })
 
     // Remove from local list
-    sessions.value = sessions.value.filter(session => session.id !== sessionId)
+    sessions.value = sessions.value.filter(session => session.token !== sessionToken)
 
     // Show success message
     console.log('Session revoked successfully')
@@ -83,9 +84,8 @@ const revokeAllSessions = async () => {
   try {
     // Revoke each session individually
     const revokePromises = sessions.value.map(session =>
-      _authClient.admin.revokeUserSession({
-        userId: props.user!.id,
-        sessionId: session.id,
+      authClient.admin.revokeUserSession({
+        sessionToken: session.token,
       }),
     )
 
@@ -197,7 +197,7 @@ onMounted(() => {
 
       <UButton
         v-if="sessions.length > 0"
-        color="red"
+        color="error"
         variant="ghost"
         size="sm"
         :loading="isRevoking"
@@ -238,12 +238,12 @@ onMounted(() => {
         </div>
 
         <UButton
-          color="red"
+          color="error"
           variant="ghost"
           size="sm"
           :loading="isRevoking"
           :disabled="isRevoking"
-          @click="revokeSession(session.id)"
+          @click="revokeSession(session.token)"
         >
           Revoke
         </UButton>
@@ -259,12 +259,12 @@ onMounted(() => {
     </div>
 
     <!-- Error Message -->
-    <UAlert v-if="error" color="red" icon="i-lucide-alert-circle" :title="error" />
+    <UAlert v-if="error" color="error" icon="i-lucide-alert-circle" :title="error" />
 
     <!-- Actions -->
     <div class="flex justify-end gap-3">
       <UButton
-        color="gray"
+        color="neutral"
         variant="ghost"
         :disabled="isLoading || isRevoking"
         @click="emit('cancel')"
