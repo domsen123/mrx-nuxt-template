@@ -8,15 +8,15 @@ export const useAdminStore = () => {
   // Query for listing users
   const useListUsers = () => {
     // PAGINATION
-    const page = useRouteQuery('page', 1, { transform: Number })
-    const pageSize = useRouteQuery('pageSize', 10, { transform: Number })
+    const page = useRouteQuery('page', 1, { transform: Number, mode: 'push' })
+    const pageSize = useRouteQuery('pageSize', 10, { transform: Number, mode: 'push' })
 
     // Computed values for pagination
     const limit = computed(() => pageSize.value)
     const offset = computed(() => (page.value - 1) * limit.value)
 
     // SEARCHING
-    const searchTermUrl = useRouteQuery<string>('searchTerm', '')
+    const searchTermUrl = useRouteQuery<string>('searchTerm', '', { mode: 'push' })
     const searchTerm = ref(searchTermUrl.value) // Input field ref (for immediate UI updates)
     const _searchTerm = debouncedRef(searchTerm, 300) // Debounced for API calls
 
@@ -34,7 +34,7 @@ export const useAdminStore = () => {
     })
 
     // SORTING
-    const orderBy = useRouteQuery('orderBy', 'name')
+    const orderBy = useRouteQuery('orderBy', 'name', { mode: 'push' })
 
     // Extract sort field and direction from orderBy (e.g., "-name" = desc, "name" = asc)
     const sortBy = computed(() => orderBy.value.replace(/^-/, ''))
