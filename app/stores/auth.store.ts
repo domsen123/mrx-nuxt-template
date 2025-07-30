@@ -56,6 +56,13 @@ export const useAuthStore = defineStore('auth', () => {
     await getSession()
   }
 
+  const updateAvatar = async (file: File) => {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    await authClient.uploadAvatar(formData)
+    await getSession()
+  }
+
   const startImpersonation = async (userId: string) => {
     try {
       const response = await authClient.admin.impersonateUser({
@@ -89,7 +96,6 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() => session.value?.user?.role ? getRoles(session.value.user.role).includes('admin') : false)
 
   return {
-
     session,
     currentUser,
     isAuthenticated,
@@ -101,5 +107,6 @@ export const useAuthStore = defineStore('auth', () => {
     startImpersonation,
     stopImpersonation,
     updateName,
+    updateAvatar,
   }
 })

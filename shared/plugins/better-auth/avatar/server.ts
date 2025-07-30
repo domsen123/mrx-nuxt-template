@@ -32,7 +32,6 @@ interface DeleteAvatarResponse {
   userId: string
 }
 
-
 /**
  * Avatar Storage Plugin for Better Auth
  * Handles avatar upload, retrieval, and deletion with WebP conversion
@@ -58,10 +57,11 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
           requireAuth: true,
         },
         async (ctx): Promise<UploadAvatarResponse> => {
+          console.log('Uploading avatar...')
           try {
             const { avatar } = ctx.body
             const session = ctx.context.session
-
+            console.log('Session:', session)
             if (!session?.user?.id) {
               throw new APIError('UNAUTHORIZED', {
                 message: 'User not authenticated',
@@ -196,7 +196,7 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
 
             try {
               const avatarBuffer = await fs.readFile(filePath)
-              
+
               return new Response(avatarBuffer, {
                 headers: {
                   'Content-Type': 'image/webp',
