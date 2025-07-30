@@ -24,16 +24,14 @@ interface UploadAvatarResponse {
   userId: string
 }
 
-interface GetAvatarResponse {
-  buffer: Buffer<ArrayBufferLike> | null
-  alt: string
-}
+type GetAvatarResponse = Buffer<ArrayBufferLike>
 
 interface DeleteAvatarResponse {
   success: boolean
   message: string
   userId: string
 }
+
 
 /**
  * Avatar Storage Plugin for Better Auth
@@ -158,64 +156,47 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
           query: z.object({
             token: z.string().optional(),
           }),
-          requireAuth: false, // We'll handle auth manually
+          requireAuth: false,
         },
-        async (ctx): Promise<any> => {
-          console.log('Fetching avatar for user:', ctx.params.userId)
+        async (ctx) => {
           try {
             const { userId } = ctx.params
             const { token } = ctx.query
 
-            // Verify authentication - either via session or token
-            let isAuthenticated = false
-
-            if (ctx.context.session?.user?.id) {
-              // Already authenticated via session
-              isAuthenticated = true
-            }
-            else if (token) {
-              try {
-                const sessionData = await ctx.context.adapter.findOne<Session>({
-                  model: 'session',
-                  where: [
-                    { field: 'token', operator: 'eq', value: token },
-
-                  ],
-                })
-                if (sessionData) {
-                  isAuthenticated = sessionData.expiresAt > new Date()
-                }
+            // Authentication check
+            const isSessionAuth = !!ctx.context.session?.user?.id
+            if (!isSessionAuth) {
+              if (!token) {
+                throw new APIError('UNAUTHORIZED', { message: 'Authentication required' })
               }
-              catch (error) {
-                console.warn('Token verification failed:', error)
-              }
-            }
 
-            if (!isAuthenticated) {
-              throw new APIError('UNAUTHORIZED', {
-                message: 'Authentication required',
+              const sessionData = await ctx.context.adapter.findOne<Session>({
+                model: 'session',
+                where: [{ field: 'token', operator: 'eq', value: token }],
               })
+
+              if (!sessionData || sessionData.expiresAt <= new Date()) {
+                throw new APIError('UNAUTHORIZED', { message: 'Invalid or expired token' })
+              }
             }
 
+            // User validation
             const user = await ctx.context.adapter.findOne<User>({
               model: 'user',
-              where: [
-                { field: 'id', operator: 'eq', value: userId },
-              ],
+              where: [{ field: 'id', operator: 'eq', value: userId }],
             })
 
             if (!user) {
-              throw new APIError('NOT_FOUND', {
-                message: 'User not found',
-              })
+              throw new APIError('NOT_FOUND', { message: 'User not found' })
             }
 
+            // Avatar file serving
+            const fileName = `${userId}.webp`
+            const filePath = path.join(process.cwd(), storageDir, fileName)
+
             try {
-              const fileName = `${userId}.webp`
-              const filePath = path.join(process.cwd(), storageDir, fileName)
-
               const avatarBuffer = await fs.readFile(filePath)
-
+              
               return new Response(avatarBuffer, {
                 headers: {
                   'Content-Type': 'image/webp',
@@ -225,9 +206,7 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
               })
             }
             catch {
-              throw new APIError('NOT_FOUND', {
-                message: 'Avatar not found',
-              })
+              throw new APIError('NOT_FOUND', { message: 'Avatar not found' })
             }
           }
           catch (error) {
