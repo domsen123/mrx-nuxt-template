@@ -47,7 +47,6 @@
 
 ### ❤️ Contributors
 
-- Dominic Marx
 - Domsen123
 
 ## d5b6b24...main

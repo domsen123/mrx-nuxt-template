@@ -8,6 +8,11 @@ import config from '../config'
 import { user } from '../database'
 import { getDatabase } from '../database/config'
 
+export const plugins = [
+  admin(),
+  avatarPlugin(),
+]
+
 export const auth = betterAuth({
   database: drizzleAdapter(getDatabase(), {
     provider: 'pg',
@@ -23,10 +28,7 @@ export const auth = betterAuth({
       console.log(`Password for user ${user.email} has been reset.`)
     },
   },
-  plugins: [
-    admin(),
-    avatarPlugin(),
-  ],
+  plugins,
   advanced: {
     database: {
       generateId: () => ulid(),
