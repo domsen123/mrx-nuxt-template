@@ -6,7 +6,7 @@ import { auth } from '../server/utils/auth'
 const seed = async () => {
   try {
     for (let i = 0; i < 100; i++) {
-      await auth.api.signUpEmail({
+      await auth.api.createUser({
         body: {
           name: faker.person.fullName(),
           email: faker.internet.email(),

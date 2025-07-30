@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
-  redirect: '/settings/profile'
+  redirect: '/settings/profile',
 })
 </script>
 

@@ -16,6 +16,10 @@ export const useAuthStore = defineStore('auth', () => {
     return session.value
   }
 
+  const getSessionToken = (): string | undefined => {
+    return session.value?.session.token || undefined
+  }
+
   const loginWithEmailAndPassword = async (email: string, password: string) => {
     try {
       await authClient.signIn.email({
@@ -91,6 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isAdmin,
     getSession,
+    getSessionToken,
     signUpWithEmailAndPassword,
     loginWithEmailAndPassword,
     startImpersonation,

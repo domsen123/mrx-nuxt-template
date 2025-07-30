@@ -1,9 +1,9 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { createAuthMiddleware } from 'better-auth/api'
 import { admin } from 'better-auth/plugins'
-import { count, eq } from 'drizzle-orm'
+import { count } from 'drizzle-orm'
 import { ulid } from 'ulid'
+import { avatarPlugin } from '../../shared/plugins/better-auth/avatar/server'
 import config from '../config'
 import { user } from '../database'
 import { getDatabase } from '../database/config'
@@ -25,6 +25,7 @@ export const auth = betterAuth({
   },
   plugins: [
     admin(),
+    avatarPlugin(),
   ],
   advanced: {
     database: {
@@ -37,19 +38,24 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
   },
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path.startsWith('/sign-up')) {
-        const db = getDatabase()
-        const [{ count: userCount }] = await db.select({ count: count() }).from(user)
-        if (userCount === 1) {
-          console.info('First user created, setting as admin.')
-          const newSession = ctx.context.newSession
-          if (newSession) {
-            await db.update(user).set({ role: 'admin' }).where(eq(user.id, newSession.user.id))
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (newUser) => {
+          const db = getDatabase()
+          const [{ count: userCount }] = await db.select({ count: count() }).from(user)
+          if (userCount === 0) {
+            return {
+              data: {
+                ...newUser,
+                role: 'admin',
+              },
+            }
           }
-        }
-      }
-    }),
+          return true
+        },
+      },
+    },
   },
+
 })

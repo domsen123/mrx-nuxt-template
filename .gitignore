@@ -23,6 +23,8 @@ logs
 .env.*
 !.env.example
 
+storage
+
 # AI Stuff
 tasks
 agent/history

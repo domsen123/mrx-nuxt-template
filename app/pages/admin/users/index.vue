@@ -108,7 +108,19 @@ const columns = [
   {
     accessorKey: 'name',
     header: 'Name',
-    cell: ({ row }) => row.getValue('name') || '-',
+    cell: ({ row }) => {
+      const user = row.original as UserWithRole
+      const name = row.getValue('name') || '-'
+
+      return h('div', { class: 'flex items-center gap-3' }, [
+        h(resolveComponent('AppAvatar'), {
+          userId: user.id,
+          size: 'sm',
+          alt: name,
+        }),
+        h('span', name),
+      ])
+    },
   },
   {
     accessorKey: 'email',
