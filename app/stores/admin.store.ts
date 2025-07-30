@@ -6,17 +6,23 @@ export const useAdminStore = () => {
   const queryCache = useQueryCache()
 
   // Query for listing users
-  const useListUsers = ({
-    page = ref(1),
-    pageSize = ref(10),
-    searchTerm = ref(''),
-    orderBy = ref('name'),
-  }: {
-    page?: Ref<number>
-    pageSize?: Ref<number>
-    searchTerm?: Ref<string>
-    orderBy?: Ref<string>
-  } = {}) => {
+  const useListUsers = () => {
+    // URL-synchronized refs
+    const page = useRouteQuery('page', 1, { transform: Number })
+    const pageSize = useRouteQuery('pageSize', 10, { transform: Number })
+    const orderBy = useRouteQuery('orderBy', 'name')
+    const searchTermUrl = useRouteQuery<string>('searchTerm', '')
+    
+    // Input field ref (for immediate UI updates)
+    const searchTerm = ref(searchTermUrl.value)
+    
+    // Sync input field with URL on initial load
+    watch(searchTermUrl, (newValue) => {
+      if (newValue !== searchTerm.value) {
+        searchTerm.value = newValue
+      }
+    }, { immediate: true })
+
     const _searchTerm = debouncedRef(searchTerm, 300)
 
     const limit = computed(() => pageSize.value)
@@ -25,16 +31,18 @@ export const useAdminStore = () => {
     const sortBy = computed(() => orderBy.value.replace(/^-/, ''))
     const sortDirection = computed(() => orderBy.value.startsWith('-') ? 'desc' : 'asc')
 
+    // Watch debounced search term to update URL and reset page
     watch(_searchTerm, () => {
+      searchTermUrl.value = _searchTerm.value
       page.value = 1
     })
 
     const queryResult = useQuery({
-      key: () => ['admin', 'users', page.value, pageSize.value, _searchTerm.value],
+      key: () => ['admin', 'users', page.value, pageSize.value, searchTermUrl.value],
       query: async () => {
         const { data, error } = await authClient.admin.listUsers({
           query: {
-            searchValue: _searchTerm.value,
+            searchValue: searchTermUrl.value,
             searchField: 'name',
             searchOperator: 'contains',
             limit: limit.value,
