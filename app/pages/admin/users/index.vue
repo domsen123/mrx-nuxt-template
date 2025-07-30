@@ -7,6 +7,7 @@ import { getRoleColor, getRoles } from '~/utils/roles'
 const { useListUsers } = useAdminStore()
 const { data, isLoading } = useListUsers()
 const _authClient = useAuthClient()
+const authStore = useAuthStore()
 
 type UserWithRole = typeof _authClient.$Infer.Session['user']
 
@@ -21,12 +22,11 @@ const users = computed<UserWithRole[]>(() => {
   return data.value && data.value.users ? data.value.users as UserWithRole[] : []
 })
 
-// Modal state management
+const toast = useToast()
 const isModalOpen = ref(false)
 const currentAction = ref<ActionType | null>(null)
 const selectedUser = ref<UserWithRole | null>(null)
 
-// Open modal with specific action and user
 const openModal = (action: ActionType, user: UserWithRole | null = null) => {
   console.log('Opening modal for action:', action, 'on user:', user)
   currentAction.value = action
@@ -34,14 +34,12 @@ const openModal = (action: ActionType, user: UserWithRole | null = null) => {
   isModalOpen.value = true
 }
 
-// Close modal and reset state
 const closeModal = () => {
   isModalOpen.value = false
   currentAction.value = null
   selectedUser.value = null
 }
 
-// Component mapping with direct resolution
 const formComponents: Record<ActionType, any> = {
   setRole: resolveComponent('AdminFormSetUserRole'),
   setPassword: resolveComponent('AdminFormSetUserPassword'),
@@ -52,7 +50,6 @@ const formComponents: Record<ActionType, any> = {
   create: resolveComponent('AdminFormCreateUser'),
 }
 
-// Get current form component
 const getCurrentFormComponent = () => {
   if (!currentAction.value) {
     return null
@@ -60,7 +57,6 @@ const getCurrentFormComponent = () => {
   return formComponents[currentAction.value]
 }
 
-// Get modal title based on action
 const getModalTitle = () => {
   const titles: Record<ActionType, string> = {
     setRole: 'Set User Role',
@@ -74,26 +70,22 @@ const getModalTitle = () => {
   return currentAction.value ? titles[currentAction.value] : ''
 }
 
-// Handle form success (refresh user list and close modal)
 const handleFormSuccess = () => {
   closeModal()
-  // Refresh user list
-  // This will depend on how useListUsers is implemented
-  // For now, we'll assume it has a refresh method or we can re-fetch
 }
 
-// Handle impersonate user action
 const handleImpersonate = async (user: UserWithRole) => {
   try {
-    await _authClient.admin.impersonateUser({
-      userId: user.id,
-    })
-    // Redirect to user dashboard after successful impersonation
+    await authStore.startImpersonation(user.id)
     await navigateTo('/')
   }
   catch (error) {
     console.error('Failed to impersonate user:', error)
-    // TODO: Show error toast
+    toast.add({
+      title: 'Impersonation Failed',
+      description: 'An error occurred while trying to impersonate the user.',
+      color: 'error',
+    })
   }
 }
 
@@ -159,21 +151,21 @@ const columns = [
     cell: ({ row }) => {
       const user = row.original as UserWithRole
       const isBanned = user.banned
-      
+
       if (!isBanned) {
         return h(UBadge, { variant: 'subtle', color: 'success' }, () => 'Active')
       }
 
       // Check if ban is expired
       const isExpired = user.banExpires && new Date(user.banExpires) < new Date()
-      
+
       if (isExpired) {
         return h(UBadge, { variant: 'subtle', color: 'warning' }, () => 'Expired')
       }
 
       const isPermanent = !user.banExpires
       const status = isPermanent ? 'Banned' : `Banned (${new Date(user.banExpires!).toLocaleDateString()})`
-      
+
       return h(UBadge, { variant: 'subtle', color: 'error' }, () => status)
     },
   },
