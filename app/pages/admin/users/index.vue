@@ -5,7 +5,7 @@ import { h } from 'vue'
 import { getRoleColor, getRoles } from '~/utils/roles'
 
 const { useListUsers } = useAdminStore()
-const { data, isLoading, page, pageSize } = useListUsers()
+const { data, isLoading, page, pageSize, searchTerm } = useListUsers()
 const _authClient = useAuthClient()
 const authStore = useAuthStore()
 
@@ -245,12 +245,23 @@ const columns = [
   <AdminPageWrapper title="Users">
     <div class="space-y-4">
       <!-- Page Actions -->
-      <div class="flex justify-end">
-        <UButton
-          icon="i-lucide-user-plus"
-          label="Create New User"
-          @click="openModal('create')"
-        />
+      <div class="flex justify-between">
+        <div class="flex items-center gap-2">
+          <UButton
+            icon="i-lucide-user-plus"
+            label="Create New User"
+            variant="subtle"
+            @click="openModal('create')"
+          />
+        </div>
+        <div>
+          <UInput
+            v-model="searchTerm"
+            placeholder="Search users..."
+            icon="i-lucide-search"
+            class="w-64"
+          />
+        </div>
       </div>
 
       <UTable
