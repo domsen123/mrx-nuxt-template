@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import { useRouteQuery } from '@vueuse/router'
 
 export const useAdminStore = () => {
   const authClient = useAuthClient()
@@ -58,9 +59,8 @@ export const useAdminStore = () => {
     }
   }
 
-  // Invalidate users query helper
   const invalidateUsers = () => {
-    queryCache.invalidateQueries({ key: ['admin', 'users'], exact: true })
+    queryCache.invalidateQueries({ key: ['admin', 'users'] })
   }
 
   // Ban user mutation
