@@ -168,8 +168,6 @@ NUXT_SITE_URL="https://yourdomain.com"
 NUXT_DATABASE_URL="your-production-db-url"
 NUXT_AUTH_SECRET="strong-random-secret"
 NUXT_SESSION_SECRET="another-strong-secret"
-NUXT_ADMIN_EMAIL="admin@yourdomain.com"
-NUXT_ADMIN_PASSWORD="secure-admin-password"  # Optional - random password generated if not set
 ```
 
 ### Build for Production
