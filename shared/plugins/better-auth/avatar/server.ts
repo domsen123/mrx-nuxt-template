@@ -57,11 +57,10 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
           use: [sessionMiddleware],
         },
         async (ctx): Promise<UploadAvatarResponse> => {
-          console.log('Uploading avatar...')
           try {
             const { avatar } = ctx.body
             const session = ctx.context.session
-            console.log('Session:', session)
+
             if (!session?.user?.id) {
               throw new APIError('UNAUTHORIZED', {
                 message: 'User not authenticated',
@@ -195,12 +194,28 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
             const filePath = path.join(process.cwd(), storageDir, fileName)
 
             try {
+              const fileStats = await fs.stat(filePath)
+              const etag = `"${fileStats.mtime.getTime()}"`
+
+              const clientEtag = ctx.headers?.get('if-none-match')
+              if (clientEtag === etag) {
+                return new Response(null, {
+                  status: 304,
+                  headers: {
+                    'ETag': etag,
+                    'Cache-Control': 'public, max-age=3600',
+                  },
+                })
+              }
+
               const avatarBuffer = await fs.readFile(filePath)
 
               return new Response(avatarBuffer, {
                 headers: {
                   'Content-Type': 'image/webp',
                   'Content-Length': avatarBuffer.length.toString(),
+                  'ETag': etag,
+                  'Last-Modified': fileStats.mtime.toUTCString(),
                   'Cache-Control': 'public, max-age=3600',
                 },
               })
