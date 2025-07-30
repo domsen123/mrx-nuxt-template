@@ -2,6 +2,10 @@
 import { yikes } from '#imports'
 import z from 'zod'
 
+useSeoMeta({
+  title: 'Profile Settings',
+})
+
 const authStore = useAuthStore()
 const { currentUser } = storeToRefs(authStore)
 

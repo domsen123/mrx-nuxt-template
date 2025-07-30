@@ -113,6 +113,22 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
     },
   }],
 }], [
+  ...(authStore.session?.session.impersonatedBy
+    ? [
+        {
+          label: 'Stop Impersonation',
+          icon: 'i-lucide-user-minus',
+          onSelect: async (e: Event) => {
+            e.preventDefault()
+            await authStore.stopImpersonation()
+            useRouter().replace({
+              path: '/',
+              force: true,
+            })
+          },
+        },
+      ]
+    : []),
   {
     label: 'Log out',
     icon: 'i-lucide-log-out',

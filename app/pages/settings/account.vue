@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-
+useSeoMeta({
+  title: 'Account Settings',
+})
 </script>
 
 <template>

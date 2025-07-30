@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-
+useSeoMeta({
+  title: 'Appearance',
+})
 </script>
 
 <template>
