@@ -51,6 +51,7 @@ export const auth = betterAuth({
               data: {
                 ...newUser,
                 role: 'admin',
+                emailVerified: true,
               },
             }
           }
