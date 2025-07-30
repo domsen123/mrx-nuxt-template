@@ -1,3 +1,4 @@
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import config from '../config'
@@ -13,6 +14,12 @@ const connectionOptions = {
 
 const getDatabaseClient = () => postgres(databaseUrl, connectionOptions)
 
-export const getDatabase = () => drizzle(getDatabaseClient(), {
-  schema,
-})
+let __db: PostgresJsDatabase<typeof schema> | undefined
+export const getDatabase = () => {
+  if (!__db) {
+    __db = drizzle(getDatabaseClient(), {
+      schema,
+    })
+  }
+  return __db
+}

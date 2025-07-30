@@ -234,18 +234,7 @@ The password reset functionality in `/server/utils/auth.ts` currently logs reset
 
 ### Admin User Creation
 
-On first startup, the application automatically creates an admin user using the `/server/plugins/01.create-admin-user.ts` plugin:
-
-- **Email**: Set via `NUXT_ADMIN_EMAIL` environment variable (required)
-- **Password**: Set via `NUXT_ADMIN_PASSWORD` environment variable (optional)
-  - If not provided, a random password is generated and logged to the console
-  - The random password will only be shown once on first startup
-  - For production, it's recommended to set a secure password in the environment variables
-
-⚠️ **Security Note**: The generated password is logged to console only for initial setup. Make sure to:
-1. Save the password immediately
-2. Change it after first login
-3. Never commit credentials to version control
+First registered user is automatically set as admin. Check better-auth hook on `/server/utils/auth.ts` for details.
 
 ## 🤝 Contributing
 
