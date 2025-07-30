@@ -7,15 +7,19 @@ export const useAdminStore = () => {
 
   // Query for listing users
   const useListUsers = () => {
-    // URL-synchronized refs
+    // PAGINATION
     const page = useRouteQuery('page', 1, { transform: Number })
     const pageSize = useRouteQuery('pageSize', 10, { transform: Number })
-    const orderBy = useRouteQuery('orderBy', 'name')
+
+    // Computed values for pagination
+    const limit = computed(() => pageSize.value)
+    const offset = computed(() => (page.value - 1) * limit.value)
+
+    // SEARCHING
     const searchTermUrl = useRouteQuery<string>('searchTerm', '')
-    
-    // Input field ref (for immediate UI updates)
-    const searchTerm = ref(searchTermUrl.value)
-    
+    const searchTerm = ref(searchTermUrl.value) // Input field ref (for immediate UI updates)
+    const _searchTerm = debouncedRef(searchTerm, 300) // Debounced for API calls
+
     // Sync input field with URL on initial load
     watch(searchTermUrl, (newValue) => {
       if (newValue !== searchTerm.value) {
@@ -23,26 +27,26 @@ export const useAdminStore = () => {
       }
     }, { immediate: true })
 
-    const _searchTerm = debouncedRef(searchTerm, 300)
-
-    const limit = computed(() => pageSize.value)
-    const offset = computed(() => (page.value - 1) * limit.value)
-
-    const sortBy = computed(() => orderBy.value.replace(/^-/, ''))
-    const sortDirection = computed(() => orderBy.value.startsWith('-') ? 'desc' : 'asc')
-
     // Watch debounced search term to update URL and reset page
     watch(_searchTerm, () => {
       searchTermUrl.value = _searchTerm.value
-      page.value = 1
+      page.value = 1 // Reset to first page when searching
     })
 
+    // SORTING
+    const orderBy = useRouteQuery('orderBy', 'name')
+
+    // Extract sort field and direction from orderBy (e.g., "-name" = desc, "name" = asc)
+    const sortBy = computed(() => orderBy.value.replace(/^-/, ''))
+    const sortDirection = computed(() => orderBy.value.startsWith('-') ? 'desc' : 'asc')
+
+    // QUERY EXECUTION
     const queryResult = useQuery({
-      key: () => ['admin', 'users', page.value, pageSize.value, searchTermUrl.value],
+      key: () => ['admin', 'users', page.value, pageSize.value, _searchTerm.value, orderBy.value],
       query: async () => {
         const { data, error } = await authClient.admin.listUsers({
           query: {
-            searchValue: searchTermUrl.value,
+            searchValue: _searchTerm.value,
             searchField: 'name',
             searchOperator: 'contains',
             limit: limit.value,
