@@ -5,7 +5,7 @@ import { h } from 'vue'
 import { getRoleColor, getRoles } from '~/utils/roles'
 
 const { useListUsers } = useAdminStore()
-const { data, isLoading } = useListUsers()
+const { data, isLoading, page, pageSize } = useListUsers()
 const _authClient = useAuthClient()
 const authStore = useAuthStore()
 
@@ -268,6 +268,10 @@ const columns = [
           </div>
         </template>
       </UTable>
+
+      <div v-if="data && data.total > pageSize" class="flex justify-end mt-4">
+        <UPagination v-model:page="page" :total="data.total" />
+      </div>
     </div>
 
     <!-- Dynamic Modal for User Actions -->
