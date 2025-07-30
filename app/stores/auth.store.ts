@@ -45,6 +45,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const updateName = async (name: string) => {
+    await authClient.updateUser({
+      name,
+    })
+    await getSession()
+  }
+
   const startImpersonation = async (userId: string) => {
     try {
       const response = await authClient.admin.impersonateUser({
@@ -88,5 +95,6 @@ export const useAuthStore = defineStore('auth', () => {
     loginWithEmailAndPassword,
     startImpersonation,
     stopImpersonation,
+    updateName,
   }
 })
