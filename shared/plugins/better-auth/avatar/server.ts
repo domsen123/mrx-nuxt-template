@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { APIError, createAuthEndpoint } from 'better-auth/api'
+import { APIError, createAuthEndpoint, sessionMiddleware } from 'better-auth/api'
 import sharp from 'sharp'
 import { z } from 'zod'
 
@@ -54,7 +54,7 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
           body: z.object({
             avatar: z.instanceof(File),
           }),
-          requireAuth: true,
+          use: [sessionMiddleware],
         },
         async (ctx): Promise<UploadAvatarResponse> => {
           console.log('Uploading avatar...')
@@ -224,7 +224,7 @@ export function avatarPlugin(options: AvatarPluginOptions = {}): BetterAuthPlugi
         '/avatar/delete',
         {
           method: 'POST',
-          requireAuth: true,
+          use: [sessionMiddleware],
         },
         async (ctx): Promise<DeleteAvatarResponse> => {
           try {
