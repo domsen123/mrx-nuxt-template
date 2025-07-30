@@ -195,6 +195,9 @@ pnpm db:push      # Push database schema
 pnpm db:studio    # Open Drizzle Studio
 pnpm docker:up    # Start PostgreSQL container
 pnpm docker:down  # Stop PostgreSQL container
+
+# Development utilities
+pnpm exec -- tsx scripts/fake-seeder.ts  # Generate 100 fake users for testing
 ```
 
 ## 🔧 Configuration
