@@ -14,7 +14,12 @@
     "docker:up": "docker compose -f docker-compose.yml up -d",
     "docker:clean": "docker compose -f docker-compose.yml down -v && docker compose -f docker-compose.yml build && docker compose -f docker-compose.yml up -d",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "changelog": "changelogen",
+    "release": "changelogen --release",
+    "release:patch": "changelogen --release --patch",
+    "release:minor": "changelogen --release --minor",
+    "release:major": "changelogen --release --major"
   },
   "dependencies": {
     "@nuxt/ui-pro": "^3.3.0",
