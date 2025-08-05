@@ -1,6 +1,43 @@
 # Changelog
 
 
+## v0.1.2
+
+[compare changes](https://github.com/domsen123/mrx-nuxt-template/compare/v0.1.0...v0.1.2)
+
+### 🚀 Enhancements
+
+- Add initial CHANGELOG.md with complete project history ([f3afc1d](https://github.com/domsen123/mrx-nuxt-template/commit/f3afc1d))
+- Improve changelog contributors format ([80cafe6](https://github.com/domsen123/mrx-nuxt-template/commit/80cafe6))
+- Complete changelogen implementation and testing ([db61378](https://github.com/domsen123/mrx-nuxt-template/commit/db61378))
+- Detect better-auth plugins ([295bfa2](https://github.com/domsen123/mrx-nuxt-template/commit/295bfa2))
+- Admin link in user menu ([5df69fe](https://github.com/domsen123/mrx-nuxt-template/commit/5df69fe))
+- Add VueUse router import for admin store SSR refactor ([19bc5ca](https://github.com/domsen123/mrx-nuxt-template/commit/19bc5ca))
+- Update query dependencies for URL-synchronized state ([15ec30c](https://github.com/domsen123/mrx-nuxt-template/commit/15ec30c))
+- Complete SSR compatibility validation with push mode navigation ([95e4c0c](https://github.com/domsen123/mrx-nuxt-template/commit/95e4c0c))
+- Create simple repository to store whatever you want ([4808503](https://github.com/domsen123/mrx-nuxt-template/commit/4808503))
+
+### 🩹 Fixes
+
+- Set email to verified for first admin user ([ce177cb](https://github.com/domsen123/mrx-nuxt-template/commit/ce177cb))
+
+### 💅 Refactors
+
+- Replace reactive refs with URL-synchronized useRouteQuery ([ececd7d](https://github.com/domsen123/mrx-nuxt-template/commit/ececd7d))
+
+### 📖 Documentation
+
+- Update readme ([6e941e9](https://github.com/domsen123/mrx-nuxt-template/commit/6e941e9))
+
+### 🏡 Chore
+
+- **release:** V0.1.1 ([100c1a4](https://github.com/domsen123/mrx-nuxt-template/commit/100c1a4))
+
+### ❤️ Contributors
+
+- Domsen123
+- Dominic Marx
+
 ## v0.1.1
 
 [compare changes](https://github.com/domsen123/mrx-nuxt-template/compare/v0.1.0...v0.1.1)
