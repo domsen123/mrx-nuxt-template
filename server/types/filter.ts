@@ -1,3 +1,5 @@
+import type { BaseItem } from './items'
+
 export type FilterOperator = '_eq' | '_ne' | '_gt' | '_lt' | '_gte' | '_lte' | '_in' | '_nin' | '_like' | '_nlike' | '@>' | '?' | '->' | '->>' | string
 export type ChainOperator = '_and' | '_or'
 
@@ -20,4 +22,13 @@ export interface QueryManyParams {
   }
   filters?: FilterChain | FilterChain[] | Filter | Filter[]
   orderBy?: string[]
+}
+
+export interface QueryManyResult<T = BaseItem> {
+  items: T[]
+  meta: {
+    total: number
+    page: number
+    pageSize: number
+  }
 }

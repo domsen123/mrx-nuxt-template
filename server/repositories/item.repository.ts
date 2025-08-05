@@ -3,24 +3,14 @@ import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import type { H3Event } from 'h3'
 import type { Hookable } from 'hookable'
 import type * as schema from '../database/schema'
-import type { Filter, FilterChain, QueryManyParams } from '../types'
+import type { BaseItem, Filter, FilterChain, QueryManyParams, QueryManyResult } from '../types'
 import type { auth } from '../utils/auth'
 import { and, or, sql } from 'drizzle-orm'
 import { ulid } from 'ulid'
 
 type User = typeof auth.$Infer.Session.user
 
-interface AnyItem {
-  [key: string]: any
-  id: string
-  createdAt: string
-  updatedAt: string
-  createdBy: string | null
-  updatedBy: string | null
-
-}
-
-export class ItemRepository<T extends AnyItem = AnyItem> {
+export class ItemRepository<T extends BaseItem = BaseItem> {
   private tableName?: string
 
   constructor(
@@ -218,7 +208,7 @@ export class ItemRepository<T extends AnyItem = AnyItem> {
     return results.map(this.toReturnItem)
   }
 
-  async queryMany(params: QueryManyParams) {
+  async queryMany(params: QueryManyParams): Promise<QueryManyResult<T>> {
     if (!this.tableName) {
       throw new Error('No collection selected. Call collection() first.')
     }
@@ -278,17 +268,28 @@ export class ItemRepository<T extends AnyItem = AnyItem> {
     // LIMIT STUFF
     const limitQuery = sql`LIMIT ${limit} OFFSET ${offset}`
 
+    const [{ count: total }] = await this.db.execute(sql.join(
+      [sql`SELECT COUNT(*) FROM ${sql.identifier(this.tableName)}`, whereClause],
+    )) as { count: number }[]
+
     // EXECUTE THIS SHIT
     const result = await this.db.execute(sql.join(
       [selectQuery, whereClause, orderByClause, limitQuery],
       sql` `,
     ))
 
-    return result.map(this.toReturnItem)
+    return {
+      items: result.map(this.toReturnItem),
+      meta: {
+        total,
+        page: Number(page),
+        pageSize: Number(pageSize),
+      },
+    }
   }
 
   async queryOne(params: Omit<QueryManyParams, 'page' | 'pageSize'>) {
-    const [result] = await this.queryMany({ ...params, page: 1, pageSize: 1 })
+    const { items: [result] } = await this.queryMany({ ...params, page: 1, pageSize: 1 })
     return result || null
   }
 }

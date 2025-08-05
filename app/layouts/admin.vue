@@ -20,6 +20,12 @@ const links = computed<NavigationMenuItem[][]>(() => [
       icon: 'i-lucide-users-round',
       active: route.path.startsWith('/admin/users'),
     },
+    {
+      label: 'Waitlist',
+      to: '/admin/waitlist',
+      icon: 'i-lucide-user-round-check',
+      active: route.path.startsWith('/admin/waitlist'),
+    },
   ],
 ])
 
