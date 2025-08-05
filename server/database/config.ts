@@ -6,13 +6,14 @@ import * as schema from './schema'
 
 const databaseUrl = config.database.url
 
-const connectionOptions = {
+const getDatabaseClient = () => postgres(databaseUrl, {
   max: config.database.pool_max,
   idle_timeout: 20,
   connect_timeout: 10,
-}
-
-const getDatabaseClient = () => postgres(databaseUrl, connectionOptions)
+  onnotice: () => {
+    // Hide Notice Messages
+  },
+})
 
 let __db: PostgresJsDatabase<typeof schema> | undefined
 export const getDatabase = () => {

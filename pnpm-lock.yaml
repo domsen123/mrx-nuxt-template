@@ -38,6 +38,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.3
         version: 0.44.3(kysely@0.28.3)(postgres@3.4.7)
+      hookable:
+        specifier: ^5.5.3
+        version: 5.5.3
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
