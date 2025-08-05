@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.3
+
+[compare changes](https://github.com/domsen123/mrx-nuxt-template/compare/v0.1.2...v0.1.3)
+
+### 🚀 Enhancements
+
+- Waitlist and awesome landing page ([08c4c41](https://github.com/domsen123/mrx-nuxt-template/commit/08c4c41))
+- Waitlist frontend, backend, admin stuff ([3b6be2d](https://github.com/domsen123/mrx-nuxt-template/commit/3b6be2d))
+
+### 🏡 Chore
+
+- Fix linting errors ([d7bf1e3](https://github.com/domsen123/mrx-nuxt-template/commit/d7bf1e3))
+
+### ❤️ Contributors
+
+- Domsen123
+
 ## v0.1.2
 
 [compare changes](https://github.com/domsen123/mrx-nuxt-template/compare/v0.1.0...v0.1.2)
