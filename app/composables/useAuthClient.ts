@@ -2,6 +2,11 @@ import { adminClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/vue'
 import { avatarPluginClient } from '~~/shared/plugins/better-auth/avatar/client'
 
+export const plugins = [
+  adminClient(),
+  avatarPluginClient(),
+]
+
 export const useAuthClient = () => {
   const cookieString = useRequestHeader('cookie')
   const { url } = useSiteConfig()
@@ -12,10 +17,7 @@ export const useAuthClient = () => {
       credentials: 'include',
       headers: cookieString ? { cookie: cookieString } : undefined,
     },
-    plugins: [
-      adminClient(),
-      avatarPluginClient(),
-    ],
+    plugins,
   })
 
   return authClient

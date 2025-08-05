@@ -113,6 +113,15 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
     },
   }],
 }], [
+  ...(authStore.isAdmin
+    ? [
+        {
+          label: 'Admin Panel',
+          icon: 'i-lucide-shield-user',
+          to: '/admin',
+        },
+      ]
+    : []),
   ...(authStore.session?.session.impersonatedBy
     ? [
         {

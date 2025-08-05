@@ -1,35 +1,48 @@
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import { useRouteQuery } from '@vueuse/router'
 
 export const useAdminStore = () => {
   const authClient = useAuthClient()
   const queryCache = useQueryCache()
 
   // Query for listing users
-  const useListUsers = ({
-    page = ref(1),
-    pageSize = ref(10),
-    searchTerm = ref(''),
-    orderBy = ref('name'),
-  }: {
-    page?: Ref<number>
-    pageSize?: Ref<number>
-    searchTerm?: Ref<string>
-    orderBy?: Ref<string>
-  } = {}) => {
-    const _searchTerm = debouncedRef(searchTerm, 300)
+  const useListUsers = () => {
+    // PAGINATION
+    const page = useRouteQuery('page', 1, { transform: Number, mode: 'push' })
+    const pageSize = useRouteQuery('pageSize', 10, { transform: Number, mode: 'push' })
 
+    // Computed values for pagination
     const limit = computed(() => pageSize.value)
     const offset = computed(() => (page.value - 1) * limit.value)
 
+    // SEARCHING
+    const searchTermUrl = useRouteQuery<string>('searchTerm', '', { mode: 'push' })
+    const searchTerm = ref(searchTermUrl.value) // Input field ref (for immediate UI updates)
+    const _searchTerm = debouncedRef(searchTerm, 300) // Debounced for API calls
+
+    // Sync input field with URL on initial load
+    watch(searchTermUrl, (newValue) => {
+      if (newValue !== searchTerm.value) {
+        searchTerm.value = newValue
+      }
+    }, { immediate: true })
+
+    // Watch debounced search term to update URL and reset page
+    watch(_searchTerm, () => {
+      searchTermUrl.value = _searchTerm.value
+      page.value = 1 // Reset to first page when searching
+    })
+
+    // SORTING
+    const orderBy = useRouteQuery('orderBy', 'name', { mode: 'push' })
+
+    // Extract sort field and direction from orderBy (e.g., "-name" = desc, "name" = asc)
     const sortBy = computed(() => orderBy.value.replace(/^-/, ''))
     const sortDirection = computed(() => orderBy.value.startsWith('-') ? 'desc' : 'asc')
 
-    watch(_searchTerm, () => {
-      page.value = 1
-    })
-
+    // QUERY EXECUTION
     const queryResult = useQuery({
-      key: () => ['admin', 'users', page.value, pageSize.value, _searchTerm.value],
+      key: () => ['admin', 'users', page.value, pageSize.value, _searchTerm.value, orderBy.value],
       query: async () => {
         const { data, error } = await authClient.admin.listUsers({
           query: {
@@ -58,9 +71,8 @@ export const useAdminStore = () => {
     }
   }
 
-  // Invalidate users query helper
   const invalidateUsers = () => {
-    queryCache.invalidateQueries({ key: ['admin', 'users'], exact: true })
+    queryCache.invalidateQueries({ key: ['admin', 'users'] })
   }
 
   // Ban user mutation
