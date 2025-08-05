@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 import type { NavigationMenuItem } from '#ui/types'
 
+definePageMeta({
+  middleware: [
+    'is-authenticated',
+  ],
+})
+
 const authStore = useAuthStore()
 const { currentUser } = storeToRefs(authStore)
 
