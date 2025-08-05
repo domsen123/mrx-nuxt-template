@@ -62,7 +62,7 @@ pnpm release
 Our changelog automatically categorizes commits based on conventional commit format:
 
 - `feat:` → 🚀 **Enhancements**
-- `fix:` → 🩹 **Fixes**  
+- `fix:` → 🩹 **Fixes**
 - `refactor:` → 💅 **Refactors**
 - `docs:` → 📖 **Documentation**
 - `chore:` → ⚙️ **Chores**
