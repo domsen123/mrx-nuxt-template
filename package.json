@@ -48,6 +48,7 @@
     "@antfu/eslint-config": "^5.2.1",
     "@faker-js/faker": "^9.9.0",
     "@iconify-json/lucide": "^1.2.65",
+    "@iconify-json/simple-icons": "^1.2.49",
     "@types/lodash-es": "^4.17.12",
     "changelogen": "^0.6.2",
     "drizzle-kit": "^0.31.4",

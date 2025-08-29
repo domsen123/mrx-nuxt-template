@@ -78,6 +78,9 @@ importers:
       '@iconify-json/lucide':
         specifier: ^1.2.65
         version: 1.2.65
+      '@iconify-json/simple-icons':
+        specifier: ^1.2.49
+        version: 1.2.49
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -923,6 +926,9 @@ packages:
 
   '@iconify-json/lucide@1.2.65':
     resolution: {integrity: sha512-Ur5I3dZyLW8bZLTEtsMKQ9lkl8u5HIiwO79pYxlvAzKQ0Mc4milB+G04CxnFqlB15x/lRq2rTPSi7ep1utDXrg==}
+
+  '@iconify-json/simple-icons@1.2.49':
+    resolution: {integrity: sha512-nRLwrHzz+cTAQYBNQrcr4eWOmQIcHObTj/QSi7nj0SFwVh5MvBsgx8OhoDC/R8iGklNmMpmoE/NKU0cPXMlOZw==}
 
   '@iconify/collections@1.0.589':
     resolution: {integrity: sha512-W5kq146pYqEaqriflgAZSAzljZldzmwxiC9GVZXkpQVDpWw/ujGYcyFTOIqoxbq01K4kd+UJS3yj/Z1cMqSEnQ==}
@@ -6992,6 +6998,10 @@ snapshots:
   '@humanwhocodes/retry@0.4.3': {}
 
   '@iconify-json/lucide@1.2.65':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/simple-icons@1.2.49':
     dependencies:
       '@iconify/types': 2.0.0
 
