@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.4
+
+[compare changes](https://github.com/domsen123/mrx-nuxt-template/compare/v0.1.4...v0.1.4)
+
+### 🏡 Chore
+
+- Update packages ([058f5e0](https://github.com/domsen123/mrx-nuxt-template/commit/058f5e0))
+
+### ❤️ Contributors
+
+- Dominic Marx
+
 ## v0.1.3
 
 [compare changes](https://github.com/domsen123/mrx-nuxt-template/compare/v0.1.2...v0.1.3)
