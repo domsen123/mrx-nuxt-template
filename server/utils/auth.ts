@@ -6,7 +6,7 @@ import { ulid } from 'ulid'
 import { avatarPlugin } from '../../shared/plugins/better-auth/avatar/server'
 import config from '../config'
 import { user } from '../database'
-import { getDatabase } from '../database/config'
+import { getBetterAuthAdapter, getDatabase, getDatabaseDriver, getMongoDatabase } from '../database/config'
 
 export const plugins = [
   admin(),
@@ -14,9 +14,7 @@ export const plugins = [
 ]
 
 export const auth = betterAuth({
-  database: drizzleAdapter(getDatabase(), {
-    provider: 'pg',
-  }),
+  database: getBetterAuthAdapter(),
   baseURL: config.site.url,
   secret: config.security.auth_secret,
   emailAndPassword: {
@@ -44,8 +42,19 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (newUser) => {
-          const db = getDatabase()
-          const [{ count: userCount }] = await db.select({ count: count() }).from(user)
+          const driver = getDatabaseDriver()
+          let userCount = 0
+
+          if (driver === 'mongodb') {
+            const db = getMongoDatabase()
+            userCount = await db.collection('user').countDocuments()
+          }
+          else if (driver === 'postgres') {
+            const db = getDatabase()
+            const [{ count: countResult }] = await db.select({ count: count() }).from(user)
+            userCount = Number(countResult)
+          }
+
           if (userCount === 0) {
             return {
               data: {
@@ -55,6 +64,7 @@ export const auth = betterAuth({
               },
             }
           }
+
           return true
         },
       },

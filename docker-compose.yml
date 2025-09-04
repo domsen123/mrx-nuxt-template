@@ -11,6 +11,22 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  mongodb:
+    image: mongo:latest
+    container_name: nuxt-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: nuxt-app
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
 
 volumes:
   postgres_data:
+  mongodb_data:
+  mongodb_config:
